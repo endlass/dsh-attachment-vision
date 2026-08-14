@@ -16,9 +16,12 @@
 
 ```sh
 git clone https://github.com/TO-BE-PUBLISHED/dsh-attachment-vision ~/dsh-plugins/dsh-attachment-vision
+
+# 一键安装（幂等：复制插件 + 注册 cordis.patch.yml + 检查 API Key）
+bash ~/dsh-plugins/dsh-attachment-vision/scripts/install.sh
 ```
 
-在 `~/.dsh/cordis.patch.yml`（home 共享层）或 profile patch 注册：
+或手动在 `~/.dsh/cordis.patch.yml`（home 共享层）或 profile patch 注册：
 
 ```yaml
 - insert:
@@ -37,8 +40,9 @@ git clone https://github.com/TO-BE-PUBLISHED/dsh-attachment-vision ~/dsh-plugins
 | 上表任一 key | **是** | — |
 | `QWEN_VL_BASE_URL` | 否 | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
 | `QWEN_VL_MODEL` | 否 | `qwen3-vl-flash` |
+| `QWEN_VL_FALLBACK_MODELS` | 否 | *(空)* |
 
-任意 OpenAI 兼容端点可用（百炼 / 智谱 / 火山方舟 / 本地 Ollama `http://localhost:11434/v1` ...）。
+**降级链**：`QWEN_VL_FALLBACK_MODELS="glm-4.6v-flash,glm-4v-flash"`（逗号分隔）。主模型遇到可重试失败（HTTP 429 / 5xx / 超时 / 网络错误）时自动依次尝试下一个模型，回复会注明由哪个降级模型完成；配置类错误（401 / 404）立即失败不降级。模型名需在同一个 `QWEN_VL_BASE_URL` 端点上有效。
 
 调试日志（写到 `/tmp/dsh-attachment-vision.log`）：`DSH_ATTACHMENT_VISION_DEBUG=1`。
 
@@ -71,7 +75,7 @@ web UI 发图
 
 ```sh
 npm run check         # node --check lib/*
-npm test              # node:test 零依赖单测（21 例：改写/路径/MIME/脱敏/VLM）
+npm test              # node:test 零依赖单测（26 例：改写/路径/MIME/脱敏/VLM/降级链）
 bash scripts/verify.sh   # headless 冒烟：临时 DSH_HOME 挂载插件后问 dsh 一个问题
 ```
 

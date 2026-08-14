@@ -18,10 +18,16 @@ Requires dsh **>= 0.1.0-rc.6** and Node **>= 20.11**.
 # git install (any location, e.g. ~/dsh-plugins)
 git clone https://github.com/TO-BE-PUBLISHED/dsh-attachment-vision ~/dsh-plugins/dsh-attachment-vision
 
-# register in your home patch (~/.dsh/cordis.patch.yml or profile patch):
-#   - insert:
-#       - id: dsh-attachment-vision
-#         name: dsh-attachment-vision
+# one-command install (idempotent: copies plugin, registers in cordis.patch.yml, checks API key)
+bash ~/dsh-plugins/dsh-attachment-vision/scripts/install.sh
+```
+
+Or register manually in your home patch (`~/.dsh/cordis.patch.yml` or profile patch):
+
+```yaml
+- insert:
+    - id: dsh-attachment-vision
+      name: dsh-attachment-vision
 ```
 
 Or via npm (once published):
@@ -41,8 +47,9 @@ Credentials are resolved from `~/.dsh/.env` / `.credentials.yaml` via the dsh cr
 | any of the keys above | **yes** | — |
 | `QWEN_VL_BASE_URL` | no | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
 | `QWEN_VL_MODEL` | no | `qwen3-vl-flash` |
+| `QWEN_VL_FALLBACK_MODELS` | no | *(empty)* |
 
-Any OpenAI-compatible endpoint works (DashScope, Zhipu, Volcano Ark, Ollama at `http://localhost:11434/v1`, ...).
+**Fallback chain**: `QWEN_VL_FALLBACK_MODELS="glm-4.6v-flash,glm-4v-flash"` (comma-separated). When the primary model hits a retryable failure (HTTP 429 / 5xx / timeout / network error), the plugin automatically tries the next model in order; the reply notes which fallback model served the request. Config-class errors (401 / 404) fail immediately without falling back. Works with any model names on the same `QWEN_VL_BASE_URL` endpoint.
 
 Debug logs (to `/tmp/dsh-attachment-vision.log`): `DSH_ATTACHMENT_VISION_DEBUG=1`.
 
@@ -76,7 +83,7 @@ user attaches image in web UI
 
 ```sh
 npm run check         # node --check lib/*
-npm test              # node:test unit tests (zero-dep, 21 cases: rewrite/path/mime/redact/vlm)
+npm test              # node:test unit tests (zero-dep, 26 cases: rewrite/path/mime/redact/vlm/fallback)
 bash scripts/verify.sh  # headless smoke: mount plugin in a temp DSH_HOME and ask dsh one question
 ```
 

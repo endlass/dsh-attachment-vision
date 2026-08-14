@@ -9,7 +9,7 @@ const os = require('node:os')
 const path = require('node:path')
 const {
   attachmentPath, rewriteMessages, stripThink, extractText,
-  redactText, mimeOf, toImageUrl, visionChat,
+  redactText, mimeOf, toImageUrl, visionChat, visionChatWithFallback, isRetryable,
   DEFAULT_QUESTION,
 } = require('../lib/core')
 
@@ -210,4 +210,79 @@ test('visionChat: 成功响应（parts 数组 content）', async () => {
 
 test('visionChat: 默认问题文本存在', () => {
   assert.ok(DEFAULT_QUESTION.includes('描述'))
+})
+
+// ---------- 降级链（visionChatWithFallback） ----------
+
+function resp(status, content) {
+  return {
+    status,
+    text: async () => JSON.stringify(content),
+  }
+}
+
+test('降级: 主模型 429 → 自动切 fallback 模型成功', async () => {
+  const called = []
+  const fakeFetch = async (url, opts) => {
+    const body = JSON.parse(opts.body)
+    called.push(body.model)
+    if (body.model === 'm1') return resp(429, { error: { message: 'rate limited' } })
+    return resp(200, { choices: [{ message: { content: '成功' } }] })
+  }
+  const { text, model } = await visionChatWithFallback({
+    baseUrl: 'https://v', models: ['m1', 'm2'], apiKey: 'k',
+    source: 'https://example.com/i.png', question: 'q', fetchImpl: fakeFetch,
+  })
+  assert.deepEqual(called, ['m1', 'm2'])
+  assert.equal(text, '成功')
+  assert.equal(model, 'm2')
+})
+
+test('降级: 5xx 可降级，401 配置错误不降级', async () => {
+  let n = 0
+  const fakeFetch = async (url, opts) => {
+    n++
+    if (n === 1) return resp(500, { error: { message: 'boom' } })
+    if (n === 2) return resp(401, { error: { message: 'bad key' } })
+    return resp(200, { choices: [{ message: { content: 'x' } }] })
+  }
+  // 5xx 降级后命中 401 → 直接抛 401（不再尝试第三个）
+  await assert.rejects(
+    () => visionChatWithFallback({
+      baseUrl: 'https://v', models: ['m1', 'm2', 'm3'], apiKey: 'k',
+      source: 'https://example.com/i.png', question: 'q', fetchImpl: fakeFetch,
+    }),
+    (e) => e.visionStatus === 401
+  )
+  assert.equal(n, 2)
+})
+
+test('降级: 全部失败 → 抛最后一个错误', async () => {
+  const fakeFetch = async () => resp(429, { error: { message: 'still limited' } })
+  await assert.rejects(
+    () => visionChatWithFallback({
+      baseUrl: 'https://v', models: ['m1', 'm2'], apiKey: 'k',
+      source: 'https://example.com/i.png', question: 'q', fetchImpl: fakeFetch,
+    }),
+    (e) => e.visionStatus === 429
+  )
+})
+
+test('降级: 单模型列表直接透传成功', async () => {
+  const fakeFetch = async () => resp(200, { choices: [{ message: { content: 'ok' } }] })
+  const { model } = await visionChatWithFallback({
+    baseUrl: 'https://v', models: ['only'], apiKey: 'k',
+    source: 'https://example.com/i.png', question: 'q', fetchImpl: fakeFetch,
+  })
+  assert.equal(model, 'only')
+})
+
+test('isRetryable: 429/5xx/超时/网络可重试，401/404 不可', () => {
+  assert.equal(isRetryable(Object.assign(new Error('e'), { visionStatus: 429 })), true)
+  assert.equal(isRetryable(Object.assign(new Error('e'), { visionStatus: 503 })), true)
+  assert.equal(isRetryable(Object.assign(new Error('e'), { visionStatus: 401 })), false)
+  assert.equal(isRetryable(Object.assign(new Error('e'), { visionStatus: 404 })), false)
+  assert.equal(isRetryable(Object.assign(new Error('e'), { name: 'TimeoutError' })), true)
+  assert.equal(isRetryable(Object.assign(new Error('e'), { name: 'TypeError' })), true)
+  assert.equal(isRetryable(new Error('plain')), false)
 })
