@@ -1,3 +1,10 @@
+<div align="center">
+
+[![English](https://img.shields.io/badge/Language-English-blue.svg)](README.md)
+[![简体中文](https://img.shields.io/badge/Language-%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-red.svg)](README.zh-CN.md)
+
+</div>
+
 # dsh-attachment-vision
 
 [![CI](https://github.com/endlass/dsh-attachment-vision/actions/workflows/ci.yml/badge.svg)](https://github.com/endlass/dsh-attachment-vision/actions/workflows/ci.yml)
