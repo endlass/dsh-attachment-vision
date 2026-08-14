@@ -65,6 +65,19 @@ web UI 发图
 - **多后端响应兼容**：VLM 返回的 `content` 可能是字符串或 parts 数组，两种都处理
 - 本地支持格式：png / jpg / jpeg / webp / gif / bmp / tif / tiff / heic（magic bytes 优先，扩展名兜底）
 
+## 真实实测（2026-08-15，百炼 DashScope）
+
+测试图：dsh UI 横幅真实截图（"探索未至之境 / 预览版" + 鲸鱼 logo，606×126 PNG）。任务：逐字转录 + 布局描述。
+
+| 模型 | 任务 | 延迟 | 结果 |
+|---|---|---|---|
+| `qwen3-vl-flash`（默认） | 文字转录 | **~1.0s** | ✅ 逐字正确 |
+| `qwen3-vl-flash`（默认） | 布局描述 | ~4.0s | ✅ 详细（logo + 标题 + 风格） |
+| `qwen3-vl-plus` | 文字转录 | **~0.6s** | ✅ 逐字正确 |
+| `qwen3-vl-plus` | 布局描述 | ~7.8s | ✅ 更细（识别出字体族） |
+
+结论：`qwen3-vl-flash` 是最佳默认——转录准确、描述够好，延迟和成本只有 plus 的零头；需要极细视觉细节时再换 `qwen3-vl-plus`（`QWEN_VL_MODEL` 一行切换）。
+
 ## ⚠️ 架构性依赖（升级前必读）
 
 - **dsh-attachment-local 存储布局**：若官方改动存储规则，自动转写会失效（`view_image` 对任意路径/URL 仍可用）

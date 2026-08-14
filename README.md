@@ -79,6 +79,19 @@ user attaches image in web UI
 - **Multi-backend tolerant response parsing**: VLM `content` may be a string or a parts array; both are handled.
 - Supported local formats: png / jpg / jpeg / webp / gif / bmp / tif / tiff / heic (magic-byte sniffing preferred, extension as fallback).
 
+## Real-world benchmark (2026-08-15, DashScope)
+
+Test image: a real dsh UI banner ("探索未至之境 / 预览版" with whale logo, 606×126 PNG). Question set: verbatim text transcription + layout description.
+
+| Model | Task | Latency | Result |
+|---|---|---|---|
+| `qwen3-vl-flash` (default) | text transcription | **~1.0s** | ✅ verbatim correct |
+| `qwen3-vl-flash` (default) | layout description | ~4.0s | ✅ detailed (logo + title + style) |
+| `qwen3-vl-plus` | text transcription | **~0.6s** | ✅ verbatim correct |
+| `qwen3-vl-plus` | layout description | ~7.8s | ✅ more granular (identifies font family) |
+
+Takeaway: `qwen3-vl-flash` is the best default — accurate transcription and good descriptions at a fraction of the latency/cost; switch to `qwen3-vl-plus` (or set `QWEN_VL_MODEL`) when deep visual detail matters more than speed.
+
 ## Caveats (architectural dependencies)
 
 - **dsh-attachment-local storage layout** — if the official storage rule changes, auto-transcription breaks. Kept intentionally tight; the tool's `view_image` still works for arbitrary paths/URLs.
