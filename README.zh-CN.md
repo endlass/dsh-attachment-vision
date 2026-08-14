@@ -15,7 +15,7 @@
 要求 dsh **>= 0.1.0-rc.6**、Node **>= 20.11**。
 
 ```sh
-git clone https://github.com/TO-BE-PUBLISHED/dsh-attachment-vision ~/dsh-plugins/dsh-attachment-vision
+git clone https://github.com/endlass/dsh-attachment-vision ~/dsh-plugins/dsh-attachment-vision
 
 # 一键安装（幂等：复制插件 + 注册 cordis.patch.yml + 检查 API Key）
 bash ~/dsh-plugins/dsh-attachment-vision/scripts/install.sh

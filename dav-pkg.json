@@ -1,0 +1,54 @@
+{
+  "name": "dsh-attachment-vision",
+  "version": "0.2.0",
+  "description": "Give text-only DeepSeek models eyes: GUI image attachments are auto-transcribed to attachment paths, plus a view_image bridge to any OpenAI-compatible VLM.",
+  "keywords": [
+    "deepseek",
+    "dsh",
+    "deepseek-harness",
+    "cordis",
+    "plugin",
+    "vision",
+    "vlm",
+    "image",
+    "attachment"
+  ],
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    }
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh-CN.md",
+    "examples",
+    "scripts",
+    "tests"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "check": "node --check lib/index.js && node --check lib/core.js",
+    "test": "node --test tests/core.test.js",
+    "verify": "bash scripts/verify.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/endlass/dsh-attachment-vision.git"
+  },
+  "bugs": {
+    "url": "https://github.com/endlass/dsh-attachment-vision/issues"
+  },
+  "homepage": "https://github.com/endlass/dsh-attachment-vision#readme"
+}
