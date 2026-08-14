@@ -1,5 +1,11 @@
 # dsh-attachment-vision
 
+[![CI](https://github.com/endlass/dsh-attachment-vision/actions/workflows/ci.yml/badge.svg)](https://github.com/endlass/dsh-attachment-vision/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/dsh-attachment-vision)](https://www.npmjs.com/package/dsh-attachment-vision)
+[![License](https://img.shields.io/github/license/endlass/dsh-attachment-vision)](LICENSE)
+![Node >=20.11](https://img.shields.io/badge/node-%3E%3D20.11-339933?logo=nodedotjs&logoColor=white)
+[![GitHub stars](https://img.shields.io/github/stars/endlass/dsh-attachment-vision)](https://github.com/endlass/dsh-attachment-vision)
+
 Give text-only DeepSeek models eyes. **Zero-dependency, single-file CommonJS plugin** for [DeepSeek Harness (dsh)](https://github.com/deepseek-ai/dsh).
 
 Unlike plain `view_image`-only plugins, this one also handles **GUI image attachments**: when you attach an image in the dsh web UI, the plugin patches the DeepSeek adapter's modality declaration (so the upload check passes) and auto-transcribes the image block into a local attachment path text, then the model calls `view_image` to actually read it. End-to-end image understanding on a text-only model.
@@ -16,7 +22,7 @@ Requires dsh **>= 0.1.0-rc.6** and Node **>= 20.11**.
 
 ```sh
 # git install (any location, e.g. ~/dsh-plugins)
-git clone https://github.com/TO-BE-PUBLISHED/dsh-attachment-vision ~/dsh-plugins/dsh-attachment-vision
+git clone https://github.com/endlass/dsh-attachment-vision ~/dsh-plugins/dsh-attachment-vision
 
 # one-command install (idempotent: copies plugin, registers in cordis.patch.yml, checks API key)
 bash ~/dsh-plugins/dsh-attachment-vision/scripts/install.sh

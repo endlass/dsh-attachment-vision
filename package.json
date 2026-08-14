@@ -45,6 +45,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TO-BE-PUBLISHED/dsh-attachment-vision.git"
-  }
+    "url": "git+https://github.com/endlass/dsh-attachment-vision.git"
+  },
+  "bugs": {
+    "url": "https://github.com/endlass/dsh-attachment-vision/issues"
+  },
+  "homepage": "https://github.com/endlass/dsh-attachment-vision#readme"
 }
