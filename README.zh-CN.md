@@ -1,0 +1,73 @@
+# dsh-attachment-vision
+
+给纯文本 DeepSeek 模型加"眼睛"的 **零依赖、单文件 CommonJS** dsh 插件。
+
+与只提供 `view_image` 工具的同类插件不同，本插件同时解决 **GUI 附件图片**：在 dsh web UI 里直接发图，插件会 patch DeepSeek adapter 的模态声明（让附件上传检查通过），并把图片块自动转写为附件真实路径的文本，模型再调 `view_image` 读图——纯文本模型全链路看图。
+
+## 功能
+
+1. **模态门控放行（可逆）**：patch `deepseek-official` adapter 的 `resolveModel`，声明支持 image 输入
+2. **图片块自动转写**：`llm/stream` 水瀑中把图片块改写为「附件真实路径」提示文本；采用 waterfall **veto** 模式——绝不触碰深冻结的原始消息，浅拷贝带重入标记的新请求重新进入 `ctx.llm.stream()`
+3. **`view_image` 工具**：本地路径 / `file://` / 公网 http(s) URL → 任意 OpenAI 兼容视觉模型（默认 DashScope `qwen3-vl-flash`）→ 文字描述
+
+## 安装
+
+要求 dsh **>= 0.1.0-rc.6**、Node **>= 20.11**。
+
+```sh
+git clone https://github.com/TO-BE-PUBLISHED/dsh-attachment-vision ~/dsh-plugins/dsh-attachment-vision
+```
+
+在 `~/.dsh/cordis.patch.yml`（home 共享层）或 profile patch 注册：
+
+```yaml
+- insert:
+    - id: dsh-attachment-vision
+      name: dsh-attachment-vision
+```
+
+或（npm 发布后）`dsh plugin --profile demo add dsh-attachment-vision`，然后重启 dsh。
+
+## 配置
+
+经 dsh credentials 服务从 `~/.dsh/.env` / `.credentials.yaml` 解析：
+
+| 变量 | 必填 | 默认 |
+|---|---|---|
+| `QWEN_VL_API_KEY`（或 `VISION_API_KEY` / `DASHSCOPE_API_KEY`） | **是** | — |
+| `QWEN_VL_BASE_URL` | 否 | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
+| `QWEN_VL_MODEL` | 否 | `qwen3-vl-flash` |
+
+任意 OpenAI 兼容端点可用（百炼 / 智谱 / 火山方舟 / 本地 Ollama `http://localhost:11434/v1` ...）。
+
+调试日志（写到 `/tmp/dsh-attachment-vision.log`）：`DSH_ATTACHMENT_VISION_DEBUG=1`。
+
+## 工作原理
+
+```
+web UI 发图
+  → 模态门控放行
+  → llm/stream hook 把图片块改写为「附件真实路径」文本
+  → 模型调 view_image(路径, 问题)
+  → 插件读文件/URL，base64 内联，调用视觉模型
+  → 描述文本作为工具结果返回 → 模型作答
+```
+
+**附件存储规则**（依赖 `dsh-attachment-local`）：`attachmentId = "sha256:<64hex>"` → 文件在 `~/.dsh/attachments/v1/objects/<前2位hex>/<64hex>`（原始字节，**无扩展名**）。
+
+## ⚠️ 架构性依赖（升级前必读）
+
+- **dsh-attachment-local 存储布局**：若官方改动存储规则，自动转写会失效（`view_image` 对任意路径/URL 仍可用）
+- **dsh-llm 深冻结不变式 + rc.6 waterfall veto 语义**：hook 依赖"不调 next() 即拦截、`ctx.llm.stream()` 重入"的机制，dsh 升级需回归
+- 单图 10MB 上限（base64 内联）、180s 超时、推理型模型输出自动剥 `<think>`
+
+## 开发
+
+```sh
+npm run check      # node --check lib/index.js
+bash scripts/verify.sh   # headless 冒烟：临时 DSH_HOME 挂载插件后问 dsh 一个问题
+```
+
+## License
+
+MIT

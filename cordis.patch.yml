@@ -1,0 +1,6 @@
+# dsh-attachment-vision 插件自声明 bundle。
+# 安装方把它合入 profile 后，dsh 会按 name 从包内加载插件。
+# 插件 id 可被安装方覆盖（避免与其它 bundle 冲突），name 必须与本包名一致。
+- insert:
+    - id: dsh-attachment-vision
+      name: dsh-attachment-vision
