@@ -34,11 +34,11 @@ Then restart dsh.
 
 ## Configuration
 
-Credentials are resolved from `~/.dsh/.env` / `.credentials.yaml` via the dsh credentials service:
+Credentials are resolved from `~/.dsh/.env` / `.credentials.yaml` via the dsh credentials service, in this order: `QWEN_VL_API_KEY` → `VISION_API_KEY` → `DSH_VISION_API_KEY` (export only; dsh 0812+ forbids `DSH_`-prefixed vars inside `.env`) → `ZHIPUAI_API_KEY` → `DASHSCOPE_API_KEY`.
 
 | Variable | Required | Default |
 |---|---|---|
-| `QWEN_VL_API_KEY` (or `VISION_API_KEY` / `DASHSCOPE_API_KEY`) | **yes** | — |
+| any of the keys above | **yes** | — |
 | `QWEN_VL_BASE_URL` | no | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
 | `QWEN_VL_MODEL` | no | `qwen3-vl-flash` |
 
@@ -60,6 +60,12 @@ user attaches image in web UI
 **Attachment storage rule** (depends on `dsh-attachment-local`, see *Caveats*):
 `attachmentId = "sha256:<64hex>"` → file at `~/.dsh/attachments/v1/objects/<first-2-hex>/<64hex>` (raw bytes, **no extension**).
 
+## Security & robustness
+
+- **API key redaction**: error messages are scrubbed (`key → ***`) before being shown to the model — no credentials leak through VLM endpoints, 4xx bodies, or unexpected exceptions.
+- **Multi-backend tolerant response parsing**: VLM `content` may be a string or a parts array; both are handled.
+- Supported local formats: png / jpg / jpeg / webp / gif / bmp / tif / tiff / heic (magic-byte sniffing preferred, extension as fallback).
+
 ## Caveats (architectural dependencies)
 
 - **dsh-attachment-local storage layout** — if the official storage rule changes, auto-transcription breaks. Kept intentionally tight; the tool's `view_image` still works for arbitrary paths/URLs.
@@ -69,9 +75,12 @@ user attaches image in web UI
 ## Development
 
 ```sh
-npm run check      # node --check lib/index.js
-bash scripts/verify.sh   # headless smoke: mount plugin in a temp DSH_HOME and ask dsh one question
+npm run check         # node --check lib/*
+npm test              # node:test unit tests (zero-dep, 21 cases: rewrite/path/mime/redact/vlm)
+bash scripts/verify.sh  # headless smoke: mount plugin in a temp DSH_HOME and ask dsh one question
 ```
+
+Code layout: `lib/index.js` is the Cordis wiring layer; all pure logic lives in `lib/core.js` (unit-testable, no dsh API coupling).
 
 ## License
 

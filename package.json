@@ -1,6 +1,6 @@
 {
   "name": "dsh-attachment-vision",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Give text-only DeepSeek models eyes: GUI image attachments are auto-transcribed to attachment paths, plus a view_image bridge to any OpenAI-compatible VLM.",
   "keywords": [
     "deepseek",
@@ -27,7 +27,8 @@
     "README.md",
     "README.zh-CN.md",
     "examples",
-    "scripts"
+    "scripts",
+    "tests"
   ],
   "engines": {
     "node": ">=20.11"
@@ -38,7 +39,8 @@
     }
   },
   "scripts": {
-    "check": "node --check lib/index.js",
+    "check": "node --check lib/index.js && node --check lib/core.js",
+    "test": "node --test tests/core.test.js",
     "verify": "bash scripts/verify.sh"
   },
   "repository": {

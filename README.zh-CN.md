@@ -30,11 +30,11 @@ git clone https://github.com/TO-BE-PUBLISHED/dsh-attachment-vision ~/dsh-plugins
 
 ## 配置
 
-经 dsh credentials 服务从 `~/.dsh/.env` / `.credentials.yaml` 解析：
+经 dsh credentials 服务从 `~/.dsh/.env` / `.credentials.yaml` 解析，按序：`QWEN_VL_API_KEY` → `VISION_API_KEY` → `DSH_VISION_API_KEY`（仅限 export；dsh 0812 起 `.env` 文件内禁止 `DSH_` 前缀变量）→ `ZHIPUAI_API_KEY` → `DASHSCOPE_API_KEY`。
 
 | 变量 | 必填 | 默认 |
 |---|---|---|
-| `QWEN_VL_API_KEY`（或 `VISION_API_KEY` / `DASHSCOPE_API_KEY`） | **是** | — |
+| 上表任一 key | **是** | — |
 | `QWEN_VL_BASE_URL` | 否 | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
 | `QWEN_VL_MODEL` | 否 | `qwen3-vl-flash` |
 
@@ -55,6 +55,12 @@ web UI 发图
 
 **附件存储规则**（依赖 `dsh-attachment-local`）：`attachmentId = "sha256:<64hex>"` → 文件在 `~/.dsh/attachments/v1/objects/<前2位hex>/<64hex>`（原始字节，**无扩展名**）。
 
+## 安全与健壮性
+
+- **API Key 脱敏**：所有错误信息在展示给模型前都会把 key 替换为 `***`——不会经 VLM 端点错误、4xx 响应体或异常消息泄露凭据
+- **多后端响应兼容**：VLM 返回的 `content` 可能是字符串或 parts 数组，两种都处理
+- 本地支持格式：png / jpg / jpeg / webp / gif / bmp / tif / tiff / heic（magic bytes 优先，扩展名兜底）
+
 ## ⚠️ 架构性依赖（升级前必读）
 
 - **dsh-attachment-local 存储布局**：若官方改动存储规则，自动转写会失效（`view_image` 对任意路径/URL 仍可用）
@@ -64,9 +70,12 @@ web UI 发图
 ## 开发
 
 ```sh
-npm run check      # node --check lib/index.js
+npm run check         # node --check lib/*
+npm test              # node:test 零依赖单测（21 例：改写/路径/MIME/脱敏/VLM）
 bash scripts/verify.sh   # headless 冒烟：临时 DSH_HOME 挂载插件后问 dsh 一个问题
 ```
+
+代码结构：`lib/index.js` 是 Cordis 接线层；纯逻辑都在 `lib/core.js`（可单测，与 dsh API 零耦合）。
 
 ## License
 
