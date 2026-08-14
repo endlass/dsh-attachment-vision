@@ -27,9 +27,13 @@ export DSH_ATTACHMENT_VISION_DEBUG=1
 echo "==> node --check"
 node --check "$PLUGIN_DIR/lib/index.js"
 
-# 3) headless 会话（临时 patch 指向默认 preset；只回 OK 不触发任何工具）
+# 清掉旧 mark log，保证第 4 步的激活痕迹是本次运行的
+rm -f /tmp/dsh-attachment-vision.log
+
+# 3) headless 会话（插件挂载已在 $TMP_HOME/cordis.patch.yml，无需 --patch；
+#    临时 home 无 DEEPSEEK_API_KEY 会 MISSING_CREDENTIAL，属预期——只验证插件激活）
 echo "==> headless mount + one question"
-OUT="$("$DSH_CMD" --profile headless --patch /tmp/verify-preset.yml '只回复：OK' 2>&1 || true)"
+OUT="$("$DSH_CMD" --profile headless '只回复：OK' 2>&1 || true)"
 
 # 4) 检查插件激活痕迹
 if grep -q "dsh-attachment-vision" <<<"$OUT"; then
