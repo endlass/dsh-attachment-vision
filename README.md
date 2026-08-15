@@ -8,6 +8,7 @@
 # dsh-attachment-vision
 
 [![CI](https://github.com/endlass/dsh-attachment-vision/actions/workflows/ci.yml/badge.svg)](https://github.com/endlass/dsh-attachment-vision/actions/workflows/ci.yml)
+[![Awesome DSH Plugin](https://img.shields.io/badge/awesome--DSH--plugin-listed-blueviolet)](https://github.com/Alex-Yanggg/awesome-DSH-plugin)
 [![npm version](https://img.shields.io/npm/v/dsh-attachment-vision)](https://www.npmjs.com/package/dsh-attachment-vision)
 [![License](https://img.shields.io/github/license/endlass/dsh-attachment-vision)](LICENSE)
 ![Node >=20.11](https://img.shields.io/badge/node-%3E%3D20.11-339933?logo=nodedotjs&logoColor=white)

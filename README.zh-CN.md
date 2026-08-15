@@ -7,6 +7,8 @@
 
 # dsh-attachment-vision
 
+[![Awesome DSH Plugin](https://img.shields.io/badge/awesome--DSH--plugin-listed-blueviolet)](https://github.com/Alex-Yanggg/awesome-DSH-plugin)
+
 给纯文本 DeepSeek 模型加"眼睛"的 **零依赖、单文件 CommonJS** dsh 插件。
 
 与只提供 `view_image` 工具的同类插件不同，本插件同时解决 **GUI 附件图片**：在 dsh web UI 里直接发图，插件会 patch DeepSeek adapter 的模态声明（让附件上传检查通过），并把图片块自动转写为附件真实路径的文本，模型再调 `view_image` 读图——纯文本模型全链路看图。
