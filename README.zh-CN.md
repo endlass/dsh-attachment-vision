@@ -7,6 +7,14 @@
 
 # dsh-attachment-vision
 
+> **⚠️ 已退役（2026-08-21）** — 被 DSH 0.1.1 官方原生多模态支持取代
+> （`deepseek-v4-flash-vision-exp` + `ctx.attachments` AttachmentStore）。官方管道用原生
+> 图片输入覆盖了本插件的核心场景（给纯文本模型装眼睛）。插件现归档为**管道层资产**
+> （可换任意 VLM + qwen3-vl-plus 用于细粒度 OCR/地理定位），不再维护。本项目沉淀的
+> 架构教训（Agent Note `2026-08-21-official-attachment-vs-plugin.md`）：用
+> `ctx.attachments.readImage(ref)` 而非从 AttachmentId 推导文件路径；绝不向模型暴露
+> 宿主机路径；遵守限额/准入治理（像素上限、媒体类型白名单、批量原子保存）。
+
 [![Awesome DSH Plugin](https://img.shields.io/badge/awesome--DSH--plugin-listed-blueviolet)](https://github.com/Alex-Yanggg/awesome-DSH-plugin)
 
 给纯文本 DeepSeek 模型加"眼睛"的 **零依赖、单文件 CommonJS** dsh 插件。

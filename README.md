@@ -7,6 +7,16 @@
 
 # dsh-attachment-vision
 
+> **⚠️ RETIRED (2026-08-21)** — Superseded by official DSH 0.1.1 native multimodal support
+> (`deepseek-v4-flash-vision-exp` + `ctx.attachments` AttachmentStore). The official pipeline
+> replaced this plugin's core scenario (giving text-only models eyes) with native image input.
+> The plugin is archived as a **pipeline-layer asset** (swap-any-VLM + qwen3-vl-plus for
+> fine-grained OCR/geo reading), not maintained. Key architectural lessons from this project,
+> per the official attachment design, are recorded in the Agent Note
+> `2026-08-21-official-attachment-vs-plugin.md`: use `ctx.attachments.readImage(ref)` instead of
+> deriving filesystem paths from `AttachmentId`; never expose host paths to the model; honor
+> limit/admission governance (pixel caps, media-type whitelist, atomic batch save).
+
 [![CI](https://github.com/endlass/dsh-attachment-vision/actions/workflows/ci.yml/badge.svg)](https://github.com/endlass/dsh-attachment-vision/actions/workflows/ci.yml)
 [![Awesome DSH Plugin](https://img.shields.io/badge/awesome--DSH--plugin-listed-blueviolet)](https://github.com/Alex-Yanggg/awesome-DSH-plugin)
 [![npm version](https://img.shields.io/npm/v/dsh-attachment-vision)](https://www.npmjs.com/package/dsh-attachment-vision)
